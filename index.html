@@ -160,21 +160,27 @@
         .reference-overlay.is-open {
             display: flex;
         }
+        /* Portrait-oriented content box to maximize portrait image size */
         .reference-overlay-content {
             background: white;
             border-radius: 16px;
-            max-width: 560px;
             width: 100%;
+            max-width: 380px;
+            height: 90vh;
             max-height: 90vh;
-            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
             position: relative;
-            padding: 24px;
+            /* Top padding reserves space for close button so it never overlaps text/image */
+            padding: 56px 24px 24px 24px;
         }
         .reference-overlay-close {
             position: absolute;
             top: 16px;
             right: 16px;
+            z-index: 2;
             width: 40px;
             height: 40px;
             border: none;
@@ -193,9 +199,11 @@
             background: #e0e0e0;
             color: #000;
         }
+        /* Image grows to fill available space (portrait maximized) */
         .reference-overlay-image {
             width: 100%;
-            max-height: 320px;
+            flex: 1 1 0;
+            min-height: 0;
             object-fit: contain;
             border-radius: 8px;
             margin-bottom: 16px;
@@ -204,10 +212,29 @@
         .reference-overlay-image.hidden {
             display: none;
         }
+        /* Full-size image mode: image fills overlay, text hidden; toggled by clicking image */
+        .reference-overlay.reference-overlay-image-fullsize .reference-overlay-content {
+            max-width: none;
+            width: 100%;
+            height: 100%;
+            padding: 56px 24px 24px;
+        }
+        .reference-overlay.reference-overlay-image-fullsize .reference-overlay-image {
+            flex: 1 1 0;
+            min-height: 0;
+            cursor: pointer;
+        }
+        .reference-overlay.reference-overlay-image-fullsize .reference-overlay-text {
+            display: none;
+        }
+        /* Text stays below image, scrolls if needed */
         .reference-overlay-text {
+            flex: 0 0 auto;
             font-size: 16px;
             line-height: 1.6;
             color: #333;
+            overflow-y: auto;
+            max-height: 40vh;
         }
 
         .parameter-value.animating {
@@ -386,7 +413,20 @@
             imgEl.onload = () => imgEl.classList.remove('hidden');
             const overlay = document.getElementById('reference-overlay');
             overlay.classList.add('is-open');
+            overlay.classList.remove('reference-overlay-image-fullsize');
             overlay.setAttribute('aria-hidden', 'false');
+            imgEl.title = 'Cliquer pour afficher en pleine taille';
+        }
+
+        /** Toggle full-size image view in the overlay (click image to enter, click again to exit). */
+        function toggleOverlayImageFullSize() {
+            const imgEl = document.getElementById('reference-overlay-image');
+            if (imgEl.classList.contains('hidden')) return;
+            const overlay = document.getElementById('reference-overlay');
+            overlay.classList.toggle('reference-overlay-image-fullsize');
+            imgEl.title = overlay.classList.contains('reference-overlay-image-fullsize')
+                ? 'Cliquer pour revenir à la vue normale'
+                : 'Cliquer pour afficher en pleine taille';
         }
 
         /** Close the reference overlay. */
@@ -395,8 +435,6 @@
             overlay.classList.remove('is-open');
             overlay.setAttribute('aria-hidden', 'true');
         }
-
-        /** Close overlay when clicking the backdrop (outside the content box). */
         document.getElementById('reference-overlay').addEventListener('click', (e) => {
             if (e.target.id === 'reference-overlay') closeReferenceOverlay();
         });
@@ -560,6 +598,7 @@
         });
         document.getElementById('race-guide-btn').addEventListener('click', openReferenceOverlay);
         document.getElementById('reference-overlay-close').addEventListener('click', closeReferenceOverlay);
+        document.getElementById('reference-overlay-image').addEventListener('click', toggleOverlayImageFullSize);
     </script>
 </body>
 </html>
