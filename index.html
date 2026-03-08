@@ -56,6 +56,12 @@
             font-weight: 500;
         }
 
+        .parameter-row {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+
         .parameter-value {
             font-size: 24px;
             color: #333;
@@ -69,6 +75,41 @@
             transition: all 0.3s ease;
             overflow: hidden;
             position: relative;
+            flex: 1;
+        }
+
+        .reroll-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 50px;
+        }
+
+        .reroll-button:hover {
+            background: #5568d3;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .reroll-button:active {
+            transform: translateY(0);
+        }
+
+        .reroll-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
         }
 
         .parameter-value.animating {
@@ -130,22 +171,34 @@
         
         <div class="parameter-container">
             <div class="parameter-label">Race</div>
-            <div class="parameter-value" id="race-value">-</div>
+            <div class="parameter-row">
+                <div class="parameter-value" id="race-value">-</div>
+                <button class="reroll-button" id="race-reroll" title="Réinitialiser la race">↻</button>
+            </div>
         </div>
 
         <div class="parameter-container">
             <div class="parameter-label">Métier</div>
-            <div class="parameter-value" id="metier-value">-</div>
+            <div class="parameter-row">
+                <div class="parameter-value" id="metier-value">-</div>
+                <button class="reroll-button" id="metier-reroll" title="Réinitialiser le métier">↻</button>
+            </div>
         </div>
 
         <div class="parameter-container">
             <div class="parameter-label">Armes</div>
-            <div class="parameter-value" id="armes-value">-</div>
+            <div class="parameter-row">
+                <div class="parameter-value" id="armes-value">-</div>
+                <button class="reroll-button" id="armes-reroll" title="Réinitialiser les armes">↻</button>
+            </div>
         </div>
 
         <div class="parameter-container">
             <div class="parameter-label">Pouvoir</div>
-            <div class="parameter-value" id="pouvoir-value">-</div>
+            <div class="parameter-row">
+                <div class="parameter-value" id="pouvoir-value">-</div>
+                <button class="reroll-button" id="pouvoir-reroll" title="Réinitialiser le pouvoir">↻</button>
+            </div>
         </div>
 
         <button class="generate-button" id="generate-button">Générer une idée</button>
@@ -257,10 +310,10 @@
             button.disabled = true;
 
             // Animate all parameters simultaneously
-            animateParameter('race-value', parameters.race, 2000);
-            animateParameter('metier-value', parameters.metier, 2200);
-            animateParameter('armes-value', parameters.armes, 2400);
-            animateParameter('pouvoir-value', parameters.pouvoir, 2600);
+            animateParameter('race-value', parameters.race, 1000);
+            animateParameter('metier-value', parameters.metier, 1200);
+            animateParameter('armes-value', parameters.armes, 1400);
+            animateParameter('pouvoir-value', parameters.pouvoir, 1600);
 
             // Re-enable button after all animations complete
             setTimeout(() => {
@@ -268,8 +321,39 @@
             }, 2600);
         }
 
+        // Function to reroll a single parameter
+        function rerollParameter(parameterKey, elementId, buttonId) {
+            const button = document.getElementById(buttonId);
+            button.disabled = true;
+            
+            // Animate the single parameter
+            animateParameter(elementId, parameters[parameterKey], 1500);
+            
+            // Re-enable button after animation completes
+            setTimeout(() => {
+                button.disabled = false;
+            }, 1500);
+        }
+
         // Event listener for generate button
         document.getElementById('generate-button').addEventListener('click', generateIdea);
+
+        // Event listeners for individual reroll buttons
+        document.getElementById('race-reroll').addEventListener('click', () => {
+            rerollParameter('race', 'race-value', 'race-reroll');
+        });
+
+        document.getElementById('metier-reroll').addEventListener('click', () => {
+            rerollParameter('metier', 'metier-value', 'metier-reroll');
+        });
+
+        document.getElementById('armes-reroll').addEventListener('click', () => {
+            rerollParameter('armes', 'armes-value', 'armes-reroll');
+        });
+
+        document.getElementById('pouvoir-reroll').addEventListener('click', () => {
+            rerollParameter('pouvoir', 'pouvoir-value', 'pouvoir-reroll');
+        });
     </script>
 </body>
 </html>
