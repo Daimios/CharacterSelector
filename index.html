@@ -218,9 +218,8 @@
                 "Homme-lézard",
                 "Minotaure",
                 "Vampire",
-                "Loup-garou",
-                "Fée",
-                "Géant"
+                "Géant",
+                "Pikachu"
             ],
             metier: [
                 "Guerrier",
@@ -249,12 +248,13 @@
                 "Marteau de guerre",
                 "Bâton magique",
                 "Faux",
-                "Chaîne et faucille",
+                "Faucille",
                 "Trident",
                 "Couteaux de lancer",
                 "Griffes métalliques",
                 "Massue",
-                "Fouet"
+                "Fouet",
+                "Shuriken"
             ],
             pouvoir: [
                 "Aucun pouvoir magique",
@@ -268,7 +268,8 @@
                 "Portail magique",
                 "Contrôle des ombres",
                 "Transformation animale",
-                "Peau de pierre"
+                "Peau de pierre",
+                "Vol"
             ]
         };
 
@@ -327,7 +328,7 @@
             button.disabled = true;
             
             // Animate the single parameter
-            animateParameter(elementId, parameters[parameterKey], 1500);
+            animateParameter(elementId, parameters[parameterKey], 1000);
             
             // Re-enable button after animation completes
             setTimeout(() => {
