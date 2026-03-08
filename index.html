@@ -176,6 +176,15 @@
             /* Top padding reserves space for close button so it never overlaps text/image */
             padding: 56px 24px 24px 24px;
         }
+        /* When no image is shown, content shrinks to fit text only (no blank space) */
+        .reference-overlay.reference-overlay-no-image .reference-overlay-content {
+            height: auto;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .reference-overlay.reference-overlay-no-image .reference-overlay-text {
+            max-height: none;
+        }
         .reference-overlay-close {
             position: absolute;
             top: 16px;
@@ -409,11 +418,18 @@
             imgEl.src = imgSrc;
             imgEl.alt = key;
             imgEl.classList.remove('hidden');
-            imgEl.onerror = () => imgEl.classList.add('hidden');
-            imgEl.onload = () => imgEl.classList.remove('hidden');
             const overlay = document.getElementById('reference-overlay');
-            overlay.classList.add('is-open');
             overlay.classList.remove('reference-overlay-image-fullsize');
+            overlay.classList.add('reference-overlay-no-image');
+            imgEl.onerror = () => {
+                imgEl.classList.add('hidden');
+                overlay.classList.add('reference-overlay-no-image');
+            };
+            imgEl.onload = () => {
+                imgEl.classList.remove('hidden');
+                overlay.classList.remove('reference-overlay-no-image');
+            };
+            overlay.classList.add('is-open');
             overlay.setAttribute('aria-hidden', 'false');
             imgEl.title = 'Cliquer pour afficher en pleine taille';
         }
