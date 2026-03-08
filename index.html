@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur d'Idées de Personnage</title>
+    <style>
+        /* Material Design inspired styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 40px;
+            font-weight: 300;
+            font-size: 28px;
+        }
+
+        .parameter-container {
+            margin-bottom: 30px;
+        }
+
+        .parameter-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .parameter-value {
+            font-size: 24px;
+            color: #333;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .parameter-value.animating {
+            background: #e3f2fd;
+        }
+
+        .parameter-value .slot-item {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.1s ease, transform 0.1s ease;
+        }
+
+        .parameter-value .slot-item.active {
+            opacity: 1;
+            transform: translateY(0);
+            position: relative;
+        }
+
+        .generate-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .generate-button:hover {
+            background: #5568d3;
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .generate-button:active {
+            transform: translateY(0);
+        }
+
+        .generate-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Générateur d'Idées de Personnage</h1>
+        
+        <div class="parameter-container">
+            <div class="parameter-label">Race</div>
+            <div class="parameter-value" id="race-value">-</div>
+        </div>
+
+        <div class="parameter-container">
+            <div class="parameter-label">Métier</div>
+            <div class="parameter-value" id="metier-value">-</div>
+        </div>
+
+        <div class="parameter-container">
+            <div class="parameter-label">Armes</div>
+            <div class="parameter-value" id="armes-value">-</div>
+        </div>
+
+        <div class="parameter-container">
+            <div class="parameter-label">Pouvoir</div>
+            <div class="parameter-value" id="pouvoir-value">-</div>
+        </div>
+
+        <button class="generate-button" id="generate-button">Générer une idée</button>
+    </div>
+
+    <script>
+        // Parameters loaded from Parameters.txt
+        const parameters = {
+            race: [
+                "Humain",
+                "Elfe",
+                "Elfe noir",
+                "Nain",
+                "Orc",
+                "Gobelin",
+                "Troll",
+                "Démon",
+                "Ange",
+                "Homme-lézard",
+                "Minotaure",
+                "Vampire",
+                "Loup-garou",
+                "Golem",
+                "Fée",
+                "Géant"
+            ],
+            metier: [
+                "Guerrier",
+                "Mage",
+                "Forgeron",
+                "Ninja",
+                "Viking",
+                "Chevalier",
+                "Assassin",
+                "Rôdeur",
+                "Prêtre",
+                "Alchimiste",
+                "Chasseur de monstres",
+                "Sorcier",
+                "Druide",
+                "Gladiateur",
+                "Samouraï",
+                "Pirate"
+            ],
+            armes: [
+                "Épée et bouclier",
+                "Épée à deux mains",
+                "Double dagues",
+                "Arc long",
+                "Arbalète",
+                "Lance",
+                "Hache de guerre",
+                "Marteau de guerre",
+                "Bâton magique",
+                "Faux",
+                "Chaîne et faucille",
+                "Trident",
+                "Couteaux de lancer",
+                "Griffes métalliques",
+                "Massue",
+                "Fouet"
+            ],
+            pouvoir: [
+                "Aucun pouvoir magique",
+                "Maîtrise du feu",
+                "Maîtrise de l'eau",
+                "Maîtrise de la terre",
+                "Maîtrise de l'air",
+                "Électricité",
+                "Glace",
+                "Nécromancie",
+                "Guérison",
+                "Téléportation",
+                "Invisibilité",
+                "Contrôle des ombres",
+                "Contrôle des plantes",
+                "Transformation animale",
+                "Illusions",
+                "Peau de pierre"
+            ]
+        };
+
+        // Slot machine animation function
+        function animateParameter(elementId, values, duration = 2000) {
+            const element = document.getElementById(elementId);
+            element.classList.add('animating');
+            element.innerHTML = '';
+
+            const startTime = Date.now();
+            const interval = 50; // Update every 50ms for smooth animation
+            let lastUpdate = startTime;
+
+            function update() {
+                const now = Date.now();
+                const elapsed = now - startTime;
+                const progress = elapsed / duration;
+
+                if (progress < 1) {
+                    // Show random value during animation
+                    const randomValue = values[Math.floor(Math.random() * values.length)];
+                    element.innerHTML = `<div class="slot-item active">${randomValue}</div>`;
+                    
+                    setTimeout(update, interval);
+                } else {
+                    // Animation complete - show final random value
+                    const finalValue = values[Math.floor(Math.random() * values.length)];
+                    element.innerHTML = `<div class="slot-item active">${finalValue}</div>`;
+                    element.classList.remove('animating');
+                }
+            }
+
+            update();
+        }
+
+        // Generate idea function
+        function generateIdea() {
+            const button = document.getElementById('generate-button');
+            button.disabled = true;
+
+            // Animate all parameters simultaneously
+            animateParameter('race-value', parameters.race, 2000);
+            animateParameter('metier-value', parameters.metier, 2200);
+            animateParameter('armes-value', parameters.armes, 2400);
+            animateParameter('pouvoir-value', parameters.pouvoir, 2600);
+
+            // Re-enable button after all animations complete
+            setTimeout(() => {
+                button.disabled = false;
+            }, 2600);
+        }
+
+        // Event listener for generate button
+        document.getElementById('generate-button').addEventListener('click', generateIdea);
+    </script>
+</body>
+</html>
