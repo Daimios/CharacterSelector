@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur d'Idées de Personnage</title>
+    <title>Générateur d'idées de personnage</title>
+    <!-- Roboto from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         /* Material Design inspired styles */
         * {
@@ -39,7 +43,7 @@
         h1 {
             color: #333;
             margin-bottom: 40px;
-            font-weight: 300;
+            font-weight: 600;
             font-size: 28px;
         }
 
@@ -112,6 +116,100 @@
             transform: none;
         }
 
+        /* Guide button: shown to the left of Race value when guide exists */
+        .guide-button {
+            background: #5c6bc0;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(92, 107, 192, 0.3);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 50px;
+        }
+        .guide-button:hover {
+            background: #3f51b5;
+            box-shadow: 0 4px 12px rgba(92, 107, 192, 0.4);
+            transform: translateY(-1px);
+        }
+        .guide-button:active {
+            transform: translateY(0);
+        }
+        .guide-button.hidden {
+            display: none;
+        }
+
+        /* Full-screen overlay for race reference guide */
+        .reference-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow: auto;
+        }
+        .reference-overlay.is-open {
+            display: flex;
+        }
+        .reference-overlay-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+            position: relative;
+            padding: 24px;
+        }
+        .reference-overlay-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+        .reference-overlay-close:hover {
+            background: #e0e0e0;
+            color: #000;
+        }
+        .reference-overlay-image {
+            width: 100%;
+            max-height: 320px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            background: #f5f5f5;
+        }
+        .reference-overlay-image.hidden {
+            display: none;
+        }
+        .reference-overlay-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
         .parameter-value.animating {
             background: #e3f2fd;
         }
@@ -167,11 +265,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>Générateur d'Idées de Personnage</h1>
+        <h1>Générateur d'idées de personnage</h1>
         
         <div class="parameter-container">
             <div class="parameter-label">Race</div>
             <div class="parameter-row">
+                <button type="button" class="guide-button hidden" id="race-guide-btn" title="Voir le guide de référence">📖</button>
                 <div class="parameter-value" id="race-value">-</div>
                 <button class="reroll-button" id="race-reroll" title="Réinitialiser la race">↻</button>
             </div>
@@ -204,8 +303,105 @@
         <button class="generate-button" id="generate-button">Générer une idée</button>
     </div>
 
+    <!-- Full-screen overlay: reference guide for selected race -->
+    <div class="reference-overlay" id="reference-overlay" aria-hidden="true">
+        <div class="reference-overlay-content">
+            <button type="button" class="reference-overlay-close" id="reference-overlay-close" title="Fermer">×</button>
+            <img class="reference-overlay-image" id="reference-overlay-image" alt="" />
+            <div class="reference-overlay-text" id="reference-overlay-text"></div>
+        </div>
+    </div>
+
     <script>
-        // Parameters loaded from Parameters.txt
+        // Map race display name (as shown in UI) to referenceGuide key and image filename
+        const raceToKey = {
+            'Humain': 'human',
+            'Elfe': 'elf',
+            'Nain': 'dwarf',
+            'Gobelin': 'gobelin',
+            'Troll': 'troll',
+            'Démon': 'demon',
+            'Ange': 'angel',
+            'Minotaure': 'minotaur',
+            'Vampire': 'vampire',
+            'Géant': 'giant',
+            'Pikachu': 'pikachu'
+        };
+
+        // Reference guide data (loaded from referenceCharacters/referenceGuide.txt)
+        let referenceGuide = null;
+
+        function loadReferenceGuide() {
+            return fetch('referenceCharacters/referenceGuide.txt')
+                .then(r => r.ok ? r.text() : Promise.reject(new Error('referenceGuide not found')))
+                .then(text => {
+                    const data = JSON.parse(text);
+                    referenceGuide = data.character || data;
+                    return referenceGuide;
+                })
+                .catch(() => {
+                    referenceGuide = {};
+                });
+        }
+
+        /** Get the race key for the currently displayed race (from #race-value). */
+        function getCurrentRaceKey() {
+            const el = document.getElementById('race-value');
+            const text = (el.querySelector('.slot-item.active') || el).textContent.trim();
+            return raceToKey[text] || null;
+        }
+
+        /** True if the current race has guide text in referenceGuide. */
+        function hasGuideForCurrentRace() {
+            if (!referenceGuide) return false;
+            const key = getCurrentRaceKey();
+            if (!key) return false;
+            const entry = referenceGuide[key];
+            return entry && entry.description && String(entry.description).trim().length > 0;
+        }
+
+        /** Show or hide the race guide button depending on whether current race has guide content. */
+        function updateGuideButtonVisibility() {
+            const btn = document.getElementById('race-guide-btn');
+            if (hasGuideForCurrentRace()) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+
+        /** Open the reference overlay with text and image for the current race. */
+        function openReferenceOverlay() {
+            const key = getCurrentRaceKey();
+            if (!key || !referenceGuide || !referenceGuide[key]) return;
+            const entry = referenceGuide[key];
+            const textEl = document.getElementById('reference-overlay-text');
+            const imgEl = document.getElementById('reference-overlay-image');
+            textEl.textContent = entry.description || '';
+            const imgSrc = `referenceCharacters/${key}.png`;
+            imgEl.src = imgSrc;
+            imgEl.alt = key;
+            imgEl.classList.remove('hidden');
+            imgEl.onerror = () => imgEl.classList.add('hidden');
+            imgEl.onload = () => imgEl.classList.remove('hidden');
+            const overlay = document.getElementById('reference-overlay');
+            overlay.classList.add('is-open');
+            overlay.setAttribute('aria-hidden', 'false');
+        }
+
+        /** Close the reference overlay. */
+        function closeReferenceOverlay() {
+            const overlay = document.getElementById('reference-overlay');
+            overlay.classList.remove('is-open');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+
+        /** Close overlay when clicking the backdrop (outside the content box). */
+        document.getElementById('reference-overlay').addEventListener('click', (e) => {
+            if (e.target.id === 'reference-overlay') closeReferenceOverlay();
+        });
+
+        // Parameters: race, metier, armes, pouvoir (loaded from Parameters.txt)
         const parameters = {
             race: [
                 "Humain",
@@ -215,7 +411,6 @@
                 "Troll",
                 "Démon",
                 "Ange",
-                "Homme-lézard",
                 "Minotaure",
                 "Vampire",
                 "Géant",
@@ -320,6 +515,7 @@
             // Re-enable button after all animations complete
             setTimeout(() => {
                 button.disabled = false;
+                updateGuideButtonVisibility();
             }, 2600);
         }
 
@@ -343,6 +539,7 @@
         // Event listeners for individual reroll buttons
         document.getElementById('race-reroll').addEventListener('click', () => {
             rerollParameter('race', 'race-value', 'race-reroll');
+            setTimeout(updateGuideButtonVisibility, 1100);
         });
 
         document.getElementById('metier-reroll').addEventListener('click', () => {
@@ -356,6 +553,13 @@
         document.getElementById('pouvoir-reroll').addEventListener('click', () => {
             rerollParameter('pouvoir', 'pouvoir-value', 'pouvoir-reroll');
         });
+
+        // Race reference guide: load data, then show/hide guide button and wire overlay
+        loadReferenceGuide().then(() => {
+            updateGuideButtonVisibility();
+        });
+        document.getElementById('race-guide-btn').addEventListener('click', openReferenceOverlay);
+        document.getElementById('reference-overlay-close').addEventListener('click', closeReferenceOverlay);
     </script>
 </body>
 </html>

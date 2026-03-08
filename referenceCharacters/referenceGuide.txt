@@ -1,0 +1,37 @@
+{
+  "character": {
+    "dwarf": {
+      "description": "Un nain de fantasy est petit mais très large et solide. Son corps est trapu avec des épaules larges, des bras épais et des jambes courtes mais puissantes. Sa tête est souvent un peu grande par rapport à son corps. Son visage a des traits forts avec un nez assez large et des sourcils épais. Les nains ont presque toujours une grande barbe très fournie, parfois tressée, et des cheveux épais qui donnent un aspect robuste et impressionnant."
+    },
+    "elf": {
+      "description": "Un elfe est grand et très mince. Son corps est fin et élégant, avec des bras et des jambes longs. Son visage est souvent doux et lisse, avec des traits fins. Les oreilles sont longues et pointues, ce qui est un signe très reconnaissable. Les elfes ont souvent de longs cheveux lisses et un regard calme qui donne une impression de grâce."
+    },
+    "human": {
+      "description": "Un humain a des proportions normales et équilibrées. Il n’est ni très petit ni très grand en général. Son corps peut être mince, moyen ou plus large. Le visage peut avoir beaucoup de formes différentes, avec des nez, des yeux et des cheveux variés. Les oreilles sont rondes et courtes. Les humains sont les personnages les plus proches des vraies personnes."
+    },
+    "gobelin": {
+      "description": "Un gobelin est petit et mince avec un corps un peu tordu. Ses bras et ses jambes sont fins et parfois un peu longs. Son visage est pointu avec un nez long et des dents souvent visibles. Les oreilles sont grandes et pointues. Les yeux peuvent être grands et brillants. Les gobelins ont souvent l’air malicieux ou un peu sauvage."
+    },
+    "troll": {
+      "description": "Un troll est très grand et très massif. Son corps est énorme avec de gros bras, de grosses jambes et un ventre large. Il peut avoir une peau épaisse et rugueuse. Son visage est souvent large avec un gros nez, une grande bouche et parfois des dents qui dépassent. Les trolls ont l’air puissants et un peu effrayants."
+    },
+    "demon": {
+      "description": "Un démon ressemble souvent à un humain mais avec des traits plus effrayants. Il peut avoir des cornes sur la tête, des ailes sombres et une longue queue. Son corps est souvent musclé et puissant. Le visage peut avoir des yeux brillants, des dents pointues et une expression menaçante."
+    },
+    "angel": {
+      "description": "Un ange ressemble à un humain mais avec une apparence très pure et lumineuse. Il a souvent de grandes ailes de plumes dans le dos. Son corps est beau et équilibré, avec une posture droite et calme. Le visage est doux avec des traits fins et un regard paisible."
+    },
+    "minotaur": {
+      "description": "Un minotaure a un corps d’homme très grand et très musclé, mais une tête de taureau. Sa tête a de grandes cornes, un museau large et de grosses narines. Son corps est puissant avec de larges épaules et des bras très forts. Il peut aussi avoir des jambes solides comme celles d’un animal."
+    },
+    "vampire": {
+      "description": "Un vampire ressemble beaucoup à un humain mais avec une apparence plus pâle et mystérieuse. Sa peau est souvent très claire. Son visage est fin avec des yeux perçants. Il a des dents pointues appelées crocs. Les vampires ont souvent un air calme et un peu inquiétant."
+    },
+    "giant": {
+      "description": "Un géant ressemble à un humain mais il est beaucoup plus grand. Son corps est énorme avec de très longs bras et de très grandes jambes. Ses mains et ses pieds sont aussi très grands. Son visage peut être large avec des traits simples et puissants."
+    },
+    "pikachu": {
+      "description": "Pikachu est une petite créature jaune avec un corps rond et mignon. Il a de grandes oreilles pointues avec les bouts noirs. Ses joues sont rouges et rondes. Il a de grands yeux noirs et une petite bouche. Sa queue est en forme d’éclair."
+    }
+  }
+}
