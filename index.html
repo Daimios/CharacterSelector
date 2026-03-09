@@ -481,7 +481,7 @@
                 "Rôdeur",
                 "Alchimiste",
                 "Chasseur de monstres",
-                "Sorcier",
+                "Barde",
                 "Druide",
                 "Gladiateur",
                 "Samouraï",
@@ -489,7 +489,8 @@
             ],
             armes: [
                 "Épée et bouclier",
-                "Épée à deux mains",
+                "Grosse épée",
+                "Katana",
                 "Double dagues",
                 "Arc long",
                 "Lance",
@@ -523,8 +524,25 @@
             ]
         };
 
+        // Per-parameter "remaining this cycle" pools for individual reroll (no repeat until all shown)
+        const parameterRemaining = {
+            race: [],
+            metier: [],
+            armes: [],
+            pouvoir: []
+        };
+
+        /** Fisher–Yates shuffle (mutates array, returns it). */
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
         // Slot machine animation function
-        function animateParameter(elementId, values, duration = 2000) {
+        function animateParameter(elementId, values, duration = 2000, finalValue = null) {
             const element = document.getElementById(elementId);
             element.classList.add('animating');
             element.innerHTML = '';
@@ -545,9 +563,11 @@
                     
                     setTimeout(update, interval);
                 } else {
-                    // Animation complete - show final random value
-                    const finalValue = values[Math.floor(Math.random() * values.length)];
-                    element.innerHTML = `<div class="slot-item active">${finalValue}</div>`;
+                    // Animation complete - show final value (from cycle pool if provided, else random)
+                    const value = finalValue !== null
+                        ? finalValue
+                        : values[Math.floor(Math.random() * values.length)];
+                    element.innerHTML = `<div class="slot-item active">${value}</div>`;
                     element.classList.remove('animating');
                 }
             }
@@ -573,15 +593,22 @@
             }, 2600);
         }
 
-        // Function to reroll a single parameter
+        // Function to reroll a single parameter (cycle: no repeat until all values have been shown)
         function rerollParameter(parameterKey, elementId, buttonId) {
             const button = document.getElementById(buttonId);
             button.disabled = true;
-            
-            // Animate the single parameter
-            animateParameter(elementId, parameters[parameterKey], 1000);
-            
-            // Re-enable button after animation completes
+
+            let pool = parameterRemaining[parameterKey];
+            if (pool.length === 0) {
+                pool = shuffle([...parameters[parameterKey]]);
+                parameterRemaining[parameterKey] = pool;
+            }
+            const index = Math.floor(Math.random() * pool.length);
+            const finalValue = pool[index];
+            pool.splice(index, 1);
+
+            animateParameter(elementId, parameters[parameterKey], 1000, finalValue);
+
             setTimeout(() => {
                 button.disabled = false;
             }, 1500);
